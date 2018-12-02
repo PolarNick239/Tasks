@@ -7,6 +7,11 @@
 // Этот файл будет сгенерирован автоматически в момент сборки - см. convertIntoHeader в CMakeLists.txt:18
 #include "cl/aplusb_cl.h"
 
+#ifdef CUDA_SUPPORT
+void cuda_aplusb(const gpu::WorkSize &workSize,
+                 const float* a, const float* b, float* c, unsigned int n);
+#endif
+
 #include <vector>
 #include <iostream>
 #include <stdexcept>
@@ -39,7 +44,14 @@ int main(int argc, char **argv)
     // Этот контекст после активации будет прозрачно использоваться при всех вызовах в libgpu библиотеке
     // это достигается использованием thread-local переменных, т.е. на самом деле контекст будет активирован для текущего потока исполнения
     gpu::Context context;
-    context.init(device.device_id_opencl);
+#ifdef CUDA_SUPPORT
+    if (device.supports_cuda) {
+        context.init(device.device_id_cuda);
+    } else
+#endif
+    {
+        context.init(device.device_id_opencl);
+    }
     context.activate();
 
     unsigned int n = 100*1000*1000;
@@ -70,12 +82,23 @@ int main(int argc, char **argv)
     // при компиляции автоматически появится файл src/cl/aplusb_cl.h с массивом aplusb_kernel состоящим из байт исходника
     // т.о. программе не будет нужно в runtime читать файл с диска, т.к. исходник кернелов теперь хранится в массиве данных основной программы
     ocl::Kernel aplusb(aplusb_kernel, aplusb_kernel_length, "aplusb");
-    aplusb.compile();
 
     unsigned int workGroupSize = 128;
     unsigned int global_work_size = (n + workGroupSize - 1) / workGroupSize * workGroupSize;
-    aplusb.exec(gpu::WorkSize(workGroupSize, global_work_size),
-                as_gpu, bs_gpu, cs_gpu, n);
+    gpu::WorkSize workSize(workGroupSize, global_work_size);
+
+#ifdef CUDA_SUPPORT
+    if (device.supports_cuda) {
+        std::cout << "Using CUDA..." << std::endl;
+        cuda_aplusb(workSize,
+                    as_gpu.cuptr(), bs_gpu.cuptr(), cs_gpu.cuptr(), n);
+    } else
+#endif
+    {
+        std::cout << "Using OpenCL..." << std::endl;
+        aplusb.exec(workSize,
+                    as_gpu, bs_gpu, cs_gpu, n);
+    }
 
     cs_gpu.readN(cs.data(), n);
 
