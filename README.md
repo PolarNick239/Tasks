@@ -1,8 +1,5 @@
-[![Build Status](https://travis-ci.com/GPGPUCourse2018/Tasks.svg?branch=master)](https://travis-ci.com/GPGPUCourse2018/Tasks)
+[![Build Status](https://travis-ci.com/GPGPUCourse2018/Tasks.svg?branch=cuda)](https://travis-ci.com/GPGPUCourse2018/Tasks)
 
-Задания:
-
- - [Ветка task3](https://github.com/GPGPUCourse2018/Tasks/tree/task3): Фрактал Мандельброта. Сумма чисел. Максимальный по сумме префикс.
- - [Ветка task4](https://github.com/GPGPUCourse2018/Tasks/tree/task4): Транспонирование матрицы. Умножение матриц.
- - [Ветка task5](https://github.com/GPGPUCourse2018/Tasks/tree/task5): Bitonic sort, radix sort.
- - [Ветка task6](https://github.com/GPGPUCourse2018/Tasks/tree/task6): Merge sort.
+ - [CMakeLists.txt](https://github.com/GPGPUCourse2018/Tasks/blob/197bbcb110d53d500ff987399c806cd6d06e602d/CMakeLists.txt#L27-L32): Поиск CUDA-компилятора, добавление ```src/cu/aplusb.cu``` в список исходников, компиляция через ```cuda_add_executable```.
+ - [aplusb.cu](https://github.com/GPGPUCourse2018/Tasks/blob/197bbcb110d53d500ff987399c806cd6d06e602d/src/cu/aplusb.cu): CUDA-кернел транслируется из OpenCL-кернела посредством [макросов](https://github.com/GPGPUCourse2018/Tasks/blob/197bbcb110d53d500ff987399c806cd6d06e602d/libs/gpu/libgpu/cuda/cu/opencl_translator.cu), вызов кернела через функцию ```cuda_aplusb```
+ - [main.cpp](https://github.com/GPGPUCourse2018/Tasks/blob/197bbcb110d53d500ff987399c806cd6d06e602d/src/main_aplusb.cpp#L90-L96): [декларация](https://github.com/GPGPUCourse2018/Tasks/blob/197bbcb110d53d500ff987399c806cd6d06e602d/src/main_aplusb.cpp#L10-L13) функции ```cuda_aplusb```, [инициализация](https://github.com/GPGPUCourse2018/Tasks/blob/197bbcb110d53d500ff987399c806cd6d06e602d/src/main_aplusb.cpp#L47-L51) CUDA-контекста, [вызов](https://github.com/GPGPUCourse2018/Tasks/blob/197bbcb110d53d500ff987399c806cd6d06e602d/src/main_aplusb.cpp#L90-L96) функции вызывающий кернел
