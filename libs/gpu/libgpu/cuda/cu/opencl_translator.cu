@@ -83,6 +83,7 @@ STATIC_KEYWORD uint	get_work_dim()
 #define HOST_CODE
 #endif
 
+#include <stdio.h>
 #include <libgpu/work_size.h>
 #include <libgpu/shared_device_buffer.h>
 #include <cuda_runtime_api.h>
