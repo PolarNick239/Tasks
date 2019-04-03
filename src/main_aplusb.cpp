@@ -8,7 +8,7 @@
 #include "cl/aplusb_cl.h"
 
 #ifdef CUDA_SUPPORT
-void cuda_aplusb(const gpu::WorkSize &workSize,
+void cuda_aplusb(const gpu::WorkSize &workSize, cudaStream_t stream,
                  const float* a, const float* b, float* c, unsigned int n);
 #endif
 
@@ -77,20 +77,21 @@ int main(int argc, char **argv)
     as_gpu.writeN(as.data(), n);
     bs_gpu.writeN(bs.data(), n);
 
+    unsigned int workGroupSize = 128;
+
     // Исходники кернела написаны в src/cl/aplusb.cl
     // Но благодаря convertIntoHeader(src/cl/aplusb.cl src/cl/aplusb_cl.h aplusb_kernel) (см. CMakeLists.txt:18)
     // при компиляции автоматически появится файл src/cl/aplusb_cl.h с массивом aplusb_kernel состоящим из байт исходника
     // т.о. программе не будет нужно в runtime читать файл с диска, т.к. исходник кернелов теперь хранится в массиве данных основной программы
-    ocl::Kernel aplusb(aplusb_kernel, aplusb_kernel_length, "aplusb");
+    ocl::Kernel aplusb(aplusb_kernel, aplusb_kernel_length, "aplusb", "-DWORKGROUP_SIZE=" + to_string(workGroupSize));
 
-    unsigned int workGroupSize = 128;
     unsigned int global_work_size = (n + workGroupSize - 1) / workGroupSize * workGroupSize;
     gpu::WorkSize workSize(workGroupSize, global_work_size);
 
 #ifdef CUDA_SUPPORT
     if (device.supports_cuda) {
         std::cout << "Using CUDA..." << std::endl;
-        cuda_aplusb(workSize,
+        cuda_aplusb(workSize, context.cudaStream(),
                     as_gpu.cuptr(), bs_gpu.cuptr(), cs_gpu.cuptr(), n);
     } else
 #endif

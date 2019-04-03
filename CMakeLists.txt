@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 
+option(GPU_CUDA_SUPPORT "CUDA support." ON)
+
 add_subdirectory(libs)
 
 project(aplusb)
@@ -15,8 +17,6 @@ if (OpenMP_CXX_FOUND)
 else()
     message(WARNING "OpenMP not found!")
 endif()
-
-option(GPU_CUDA_SUPPORT "CUDA support." ON)
 
 # convertIntoHeader CMake-функция объявлена в libs/gpu/CMakeLists.txt:71
 # Она считывает все байты из файла src/cl/aplusb.cl (т.е. весь исходный код кернела) и преобразует их в массив байтов в файле src/cl/aplusb_cl.h aplusb_kernel
